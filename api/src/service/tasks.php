@@ -21,12 +21,11 @@ class TasksService {
         }
     }
 
-    http_response_code(404);
     throw new Exception('Task not found', 404);
   }
 
   public function create($task) {
-    $this->validateTitle($task['title']);
+    $this->validateTitle($task['title'] ?? null);
  
     $tasks = $this->repository->read();
 
@@ -49,12 +48,11 @@ class TasksService {
     foreach ($tasks as &$task) {
         if ($task['id'] == $id) {
             if (isset($data['title'])) {
-                $this->validateTitle($data['title']);
+                $this->validateTitle($data['title'] ?? null);
                 $task['title'] = $data['title'];
             }
             if (isset($data['completed'])) {
                 if (!is_bool($data['completed'])) {
-                    http_response_code(422);
                     throw new Exception('Task completed must be a boolean', 422);
                 }
                 $task['completed'] = $data['completed'];
@@ -64,7 +62,6 @@ class TasksService {
         }
     }
 
-    http_response_code(404);
     throw new Exception('Task not found', 404);
   }
 
@@ -77,18 +74,15 @@ class TasksService {
         }
     }
 
-    http_response_code(404);
     throw new Exception('Task not found', 404);
   }
 
   private function validateTitle($title) {
     if (empty($title)) {
-      http_response_code(422);
       throw new Exception('Task title is required', 422);
     }
 
     if (!is_string($title)) {
-      http_response_code(422);
       throw new Exception('Task title must be a string', 422);
     }
   }

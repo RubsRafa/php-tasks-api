@@ -26,7 +26,7 @@ if ($segments[0] === 'tasks') {
             http_response_code(200);
             echo json_encode($controller->getTasks());
         } catch (\Throwable $th) {
-            http_response_code(500);
+            http_response_code($th->getCode() ?: 500);
             echo json_encode(["error" => $th->getMessage()]);
         }
         exit;
@@ -39,7 +39,7 @@ if ($segments[0] === 'tasks') {
             http_response_code(200);
             echo json_encode($result);
         } catch (\Throwable $th) {
-            http_response_code(500);
+            http_response_code($th->getCode() ?: 500);
             echo json_encode(["error" => $th->getMessage()]);
         }
         exit;
@@ -48,10 +48,13 @@ if ($segments[0] === 'tasks') {
     if ($method === 'POST' && count($segments) === 1) {
         try {
             $body = json_decode(file_get_contents("php://input"), true);
+            
+            $result = $controller->createTask($body);
+            
             http_response_code(201);
-            echo json_encode($controller->createTask($body));
+            echo json_encode($result);
         } catch (\Throwable $th) {
-            http_response_code(500);
+            http_response_code($th->getCode() ?: 500);
             echo json_encode(["error" => $th->getMessage()]);
         }
         exit;
@@ -64,7 +67,7 @@ if ($segments[0] === 'tasks') {
             http_response_code(200);
             echo json_encode($controller->updateTask($id, $body));
         } catch (\Throwable $th) {
-            http_response_code(500);
+            http_response_code($th->getCode() ?: 500);
             echo json_encode(["error" => $th->getMessage()]);
         }
         exit;
@@ -76,7 +79,7 @@ if ($segments[0] === 'tasks') {
             http_response_code(204);
             echo json_encode($controller->deleteTask($id));
         } catch (\Throwable $th) {
-            http_response_code(500);
+            http_response_code($th->getCode() ?: 500);
             echo json_encode(["error" => $th->getMessage()]);
         }
         exit;

@@ -11,42 +11,22 @@ class TasksController {
     }
 
     public function getTasks() {
-        try {
-            return $this->service->getTasks();
-        } catch (Exception $e) {
-            echo json_encode(["error" => $e->getCode(), "message" => $e->getMessage()]);
-        }
+        return $this->service->getTasks();
     }
 
     public function getTask($id) {
-        try {
-            return $this->service->getTask($id);
-        } catch (Exception $e) {
-            echo json_encode(["error" => $e->getCode(), "message" => $e->getMessage()]);
-        }
+        return $this->service->getTask($id);
     }
 
     public function createTask($task) {
-        try {
-            return $this->service->create($task);
-        } catch (Exception $e) {
-            echo json_encode(["error" => $e->getCode(), "message" => $e->getMessage()]);
-        }
+        return $this->service->create($task);
     }
 
     public function updateTask($id, $data) {
-        try {
-            return $this->service->update($id, $data);
-        } catch (Exception $e) {
-            echo json_encode(["error" => $e->getCode(), "message" => $e->getMessage()]);
-        }
+        return $this->service->update($id, $data);
     }
 
     public function deleteTask($id) {
-        try {
-            return $this->service->delete($id);
-        } catch (Exception $e) {
-            echo json_encode(["error" => $e->getCode(), "message" => $e->getMessage()]);
-        }
+        return $this->service->delete($id);
     }
 }
