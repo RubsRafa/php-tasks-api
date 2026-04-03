@@ -10,8 +10,8 @@ class TasksController {
         $this->service = new TasksService();
     }
 
-    public function getTasks() {
-        return $this->service->getTasks();
+    public function getTasks($completed, $page, $limit) {
+        return $this->service->getTasks($completed, $page, $limit);
     }
 
     public function getTask($id) {

@@ -20,11 +20,14 @@ $controller = new TasksController();
 $segments = explode('/', trim($uri, '/'));
 
 if ($segments[0] === 'tasks') {
+    $completed = $_GET['completed'] ?? null;
+    $page = $_GET['page'] ?? 1;
+    $limit = $_GET['limit'] ?? 10;
 
     if ($method === 'GET' && count($segments) === 1) {
         try {
             http_response_code(200);
-            echo json_encode($controller->getTasks());
+            echo json_encode($controller->getTasks($completed, $page, $limit));
         } catch (\Throwable $th) {
             http_response_code($th->getCode() ?: 500);
             echo json_encode(["error" => $th->getMessage()]);
@@ -77,7 +80,7 @@ if ($segments[0] === 'tasks') {
         try {
             $id = $segments[1];
             http_response_code(204);
-            echo json_encode($controller->deleteTask($id));
+            $controller->deleteTask($id);
         } catch (\Throwable $th) {
             http_response_code($th->getCode() ?: 500);
             echo json_encode(["error" => $th->getMessage()]);

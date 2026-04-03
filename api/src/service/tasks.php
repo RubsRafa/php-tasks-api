@@ -3,22 +3,52 @@
 require_once __DIR__ . '/../repository/tasks.php';
 
 class TasksService {
+  private $maxLimit;
   private TasksRepository $repository;
 
-  public function __construct($repository = null) {
+  public function __construct($repository = null, $maxLimit = null) {
         $this->repository = new TasksRepository();
+        $this->maxLimit = $maxLimit ?? 100;
     }
 
-  public function getTasks() {
-    return $this->repository->read();
+  public function getTasks($completed = null, $page = null, $limit = null) {
+    if (isset($completed)) {
+      if ($completed !== 'true' && $completed !== 'false') {
+          throw new Exception("Completed must be true or false", 422);
+      }
+      $completed = $completed === 'true';
+    }
+
+    if ($page !== null) {
+      if (filter_var($page, FILTER_VALIDATE_INT) === false) {
+          throw new Exception("Page must be a number", 422);
+      }
+      $page = (int) $page;
+      if ($page <= 0) {
+          throw new Exception("Page must be a positive integer", 422);
+      }
+    }
+    
+    if ($limit !== null) {
+      if (filter_var($limit, FILTER_VALIDATE_INT) === false) {
+          throw new Exception("Limit must be a number", 422);
+      }
+      $limit = (int) $limit;
+      if ($limit <= 0) {
+          throw new Exception("Limit must be a positive integer", 422);
+      }
+      if ($limit > $this->maxLimit) {
+          throw new Exception("Limit must be less than or equal to " . $this->maxLimit, 422);
+      }
+    }
+
+    return $this->repository->findAll($completed, $page, $limit);
   }
 
   public function getTask($id) {
-    $tasks = $this->repository->read();
-    foreach ($tasks as $task) {
-        if ($task['id'] == $id) {
-            return $task;
-        }
+    $result = $this->repository->findById($id);
+    if ($result) {
+        return $result;
     }
 
     throw new Exception('Task not found', 404);
@@ -27,7 +57,8 @@ class TasksService {
   public function create($task) {
     $this->validateTitle($task['title'] ?? null);
  
-    $tasks = $this->repository->read();
+    $result = $this->repository->findAll();
+    $tasks = $result['data'];
 
     $newTask = [
       'id' => uniqid(),
@@ -44,7 +75,8 @@ class TasksService {
   }
 
   public function update($id, $data) {
-    $tasks = $this->repository->read();
+    $result = $this->repository->findAll();
+    $tasks = $result['data'];
     foreach ($tasks as &$task) {
         if ($task['id'] == $id) {
             if (isset($data['title'])) {
@@ -66,11 +98,13 @@ class TasksService {
   }
 
   public function delete($id) {
-    $tasks = $this->repository->read();
+    $result = $this->repository->findAll();
+    $tasks = $result['data'];
     foreach ($tasks as $index => $task) {
         if ($task['id'] == $id) {
             array_splice($tasks, $index, 1);
             $this->repository->write($tasks);
+            return;
         }
     }
 
